@@ -1,8 +1,12 @@
 package com.procurement.smart_procurement.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+/**
+ * PurchaseRequest Entity
+ * Represents a Purchase Request raised by a user
+ */
 @Entity
 @Table(name = "purchase_requests")
 public class PurchaseRequest {
@@ -11,31 +15,35 @@ public class PurchaseRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Auto-generated PR Number (PR-2024-0001)
+    @Column(unique = true)
     private String requestNumber;
-    private String description;
-    private Double amount;
-    private String status; // DRAFT / APPROVED / REJECTED
-    private LocalDate requestedDate;
 
-    public PurchaseRequest() {
-    }
+    // Item / product description
+    @Column(nullable = false)
+    private String itemDescription;
 
-    public PurchaseRequest(Long id, String requestNumber, String description,
-                           Double amount, String status, LocalDate requestedDate) {
-        this.id = id;
-        this.requestNumber = requestNumber;
-        this.description = description;
-        this.amount = amount;
-        this.status = status;
-        this.requestedDate = requestedDate;
-    }
+    // Quantity of items requested
+    @Column(nullable = false)
+    private Integer quantity;
 
+    // Total budget amount
+    @Column(nullable = false)
+    private Double budget;
+
+    // DRAFT / APPROVED / REJECTED
+    @Column(nullable = false)
+    private String status;
+
+    // When PR is created
+    private LocalDateTime requestedDate;
+
+    // ---------- Constructors ----------
+    public PurchaseRequest() {}
+
+    // ---------- Getters & Setters ----------
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getRequestNumber() {
@@ -46,20 +54,28 @@ public class PurchaseRequest {
         this.requestNumber = requestNumber;
     }
 
-    public String getDescription() {
-        return description;
+    public String getItemDescription() {
+        return itemDescription;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setItemDescription(String itemDescription) {
+        this.itemDescription = itemDescription;
     }
 
-    public Double getAmount() {
-        return amount;
+    public Integer getQuantity() {
+        return quantity;
     }
 
-    public void setAmount(Double amount) {
-        this.amount = amount;
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
+    }
+
+    public Double getBudget() {
+        return budget;
+    }
+
+    public void setBudget(Double budget) {
+        this.budget = budget;
     }
 
     public String getStatus() {
@@ -70,11 +86,11 @@ public class PurchaseRequest {
         this.status = status;
     }
 
-    public LocalDate getRequestedDate() {
+    public LocalDateTime getRequestedDate() {
         return requestedDate;
     }
 
-    public void setRequestedDate(LocalDate requestedDate) {
+    public void setRequestedDate(LocalDateTime requestedDate) {
         this.requestedDate = requestedDate;
     }
 }

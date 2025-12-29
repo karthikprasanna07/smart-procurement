@@ -15,7 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import org.springframework.stereotype.Component;
+
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -30,7 +30,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        // ✅ DEFINE PATH FIRST
+        String path = request.getServletPath();
+
+        // ✅ Skip JWT validation for login endpoint
+        if ("/auth/login".equals(path)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String header = request.getHeader("Authorization");
         String token = null;
@@ -39,12 +49,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             token = header.substring(7);
         }
 
-        if (token != null && jwtUtil.validateToken(token)
+        if (token != null
+                && jwtUtil.validateToken(token)
                 && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             String username = jwtUtil.extractUsername(token);
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails =
+                    userDetailsService.loadUserByUsername(username);
 
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(

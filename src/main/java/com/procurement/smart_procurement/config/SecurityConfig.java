@@ -65,7 +65,14 @@ public class SecurityConfig {
                 // Define authorization (access control) rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // Allow anyone to access login API (no authentication required)
+                        // ✅ Allow Swagger UI & OpenAPI docs
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        // ✅ Allow login API (no authentication required)
                         .requestMatchers("/auth/login").permitAll()
 
                         // 🔐 ROLE-BASED ACCESS CONTROL (RBAC)
@@ -80,10 +87,8 @@ public class SecurityConfig {
                 )
 
                 // Add JWT filter before Spring Security's default authentication filter
-                // This filter extracts JWT, validates it, and sets authentication context
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        // Build and return the configured security filter chain
         return http.build();
     }
 }
