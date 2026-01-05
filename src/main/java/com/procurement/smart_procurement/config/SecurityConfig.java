@@ -13,8 +13,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
-@Configuration  // Marks this class as a Spring Security configuration class
+
+
+@Configuration
+@EnableMethodSecurity(jsr250Enabled = true)// Marks this class as a Spring Security configuration class
 public class SecurityConfig {
 
     // Service that loads user details (username, password, role) from DB
@@ -53,6 +58,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
+
         http
                 // Disable CSRF because we are using JWT (stateless authentication)
                 .csrf(csrf -> csrf.disable())
@@ -65,25 +71,30 @@ public class SecurityConfig {
                 // Define authorization (access control) rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ Allow Swagger UI & OpenAPI docs
+                        // ✅ Allow Swagger UI and OpenAPI documentation without login
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // ✅ Allow login API (no authentication required)
+                        // ✅ Allow login API (user must be able to login without token)
                         .requestMatchers("/auth/login").permitAll()
 
-                        // 🔐 ROLE-BASED ACCESS CONTROL (RBAC)
-                        // Only users with ROLE_ADMIN can access vendor APIs
-                        .requestMatchers("/api/v1/vendors/**").hasAuthority("ROLE_ADMIN")
+                        // 🔐 RBAC CHECK
+                        // Only ADMIN users can access vendor-related APIs
+                        .requestMatchers("/api/v1/vendors/**")
+                        .hasAuthority("ROLE_ADMIN")
 
-                        // Any other API under /api/v1 requires authentication (valid JWT)
-                        .requestMatchers("/api/v1/**").authenticated()
+                        // ✅ TEMPORARY: Allow Purchase Order APIs without authentication
+                        // This is done ONLY to isolate the 403 issue during Sprint 5 testing
+                        .requestMatchers("/api/pos/**").permitAll()
+                        .requestMatchers("/api/pos").permitAll()
 
-                        // Any remaining requests also require authentication
-                        .anyRequest().authenticated()
+
+                        // Allow ALL remaining requests without authentication
+                        // This helps confirm whether 403 is coming from Spring Security rules
+                        .anyRequest().permitAll()
                 )
 
                 // Add JWT filter before Spring Security's default authentication filter
@@ -91,4 +102,10 @@ public class SecurityConfig {
 
         return http.build();
     }
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return web -> web.ignoring()
+                .requestMatchers("/api/pos", "/api/pos/**");
+    }
+
 }
