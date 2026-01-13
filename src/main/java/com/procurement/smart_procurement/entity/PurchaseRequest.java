@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import java.time.LocalDateTime;
 
@@ -57,9 +58,15 @@ public class PurchaseRequest {
     private Double budget;
 
     /**
-     * Status of the PR
-     * Examples: DRAFT, APPROVED, REJECTED
+     * Status of the Purchase Request
+     * Allowed values:
+     * DRAFT, PENDING_APPROVAL, APPROVED, REJECTED
      */
+    @NotBlank(message = "Status is required")
+    @Pattern(
+            regexp = "DRAFT|PENDING_APPROVAL|APPROVED|REJECTED",
+            message = "Status must be one of DRAFT, PENDING_APPROVAL, APPROVED, REJECTED"
+    )
     @Column(nullable = false)
     private String status;
 

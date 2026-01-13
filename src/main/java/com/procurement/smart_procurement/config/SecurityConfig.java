@@ -13,25 +13,21 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-
+import java.util.List;
 
 @Configuration
-@EnableMethodSecurity(jsr250Enabled = true)// Marks this class as a Spring Security configuration class
+@EnableMethodSecurity(jsr250Enabled = true)
 public class SecurityConfig {
 
-    // Service that loads user details (username, password, role) from DB
     private final UserDetailsService userDetailsService;
-
-    // Utility class for JWT creation and validation
     private final JwtUtil jwtUtil;
-
-    // Custom filter that validates JWT for every request
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // Constructor-based dependency injection
     public SecurityConfig(
             UserDetailsService userDetailsService,
             JwtUtil jwtUtil,
@@ -42,70 +38,93 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    // Password encoder bean used to hash passwords (BCrypt is industry standard)
+    // Password hashing (BCrypt)
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // AuthenticationManager is required to authenticate username/password during login
+    // Authentication manager for login
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
         return cfg.getAuthenticationManager();
     }
 
-    // Main Spring Security configuration
+    // 🔐 Main security configuration
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-
         http
-                // Disable CSRF because we are using JWT (stateless authentication)
+                // ✅ ENABLE CORS
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+
+                // Disable CSRF (JWT is stateless)
                 .csrf(csrf -> csrf.disable())
 
-                // Configure application as STATELESS (no HTTP sessions)
+                // Stateless session (JWT based)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Define authorization (access control) rules
+                // Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // ✅ Allow Swagger UI and OpenAPI documentation without login
+                        // Swagger access
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
 
-                        // ✅ Allow login API (user must be able to login without token)
+                        // Login API must be public
                         .requestMatchers("/auth/login").permitAll()
 
-                        // 🔐 RBAC CHECK
-                        // Only ADMIN users can access vendor-related APIs
+                        // Vendor APIs - ADMIN only
                         .requestMatchers("/api/v1/vendors/**")
                         .hasAuthority("ROLE_ADMIN")
 
-                        // ✅ TEMPORARY: Allow Purchase Order APIs without authentication
-                        // This is done ONLY to isolate the 403 issue during Sprint 5 testing
-                        .requestMatchers("/api/pos/**").permitAll()
-                        .requestMatchers("/api/pos").permitAll()
+                        // Temporary open APIs
+                        .requestMatchers("/api/v1/pos/**").permitAll()
 
-
-                        // Allow ALL remaining requests without authentication
-                        // This helps confirm whether 403 is coming from Spring Security rules
+                        // Allow all remaining requests (for now)
                         .anyRequest().permitAll()
                 )
 
-                // Add JWT filter before Spring Security's default authentication filter
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // JWT filter
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                );
 
         return http.build();
     }
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return web -> web.ignoring()
-                .requestMatchers("/api/pos", "/api/pos/**");
-    }
 
+    // 🌐 CORS configuration (FOR REACT FRONTEND)
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        // Allow React dev server
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        // Allowed HTTP methods
+        config.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+
+        // Allow all headers
+        config.setAllowedHeaders(List.of("*"));
+
+        // Allow cookies / auth headers if needed later
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
+
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
+    }
 }

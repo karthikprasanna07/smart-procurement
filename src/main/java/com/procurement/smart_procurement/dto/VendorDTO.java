@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * VendorDTO
@@ -20,7 +21,12 @@ public class VendorDTO {
     @Email(message = "Invalid email format")
     private String email;
 
+    // ✅ Phone number validation
+    // - Must be exactly 10 digits
+    // - Only numbers allowed
     @NotBlank(message = "Phone number is required")
+    @Size(min = 10, max = 10, message = "Phone number must be exactly 10 digits")
+    @Pattern(regexp = "^[0-9]{10}$", message = "Phone number must contain only digits")
     private String phone;
 
     @NotBlank(message = "Address is required")

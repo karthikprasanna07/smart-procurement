@@ -16,4 +16,7 @@ public interface PurchaseRequestService {
     PurchaseRequest updatePR(Long id, PurchaseRequest pr);
 
     List<PurchaseRequest> getAllPRs();
+
+    // ✅ ADD THIS
+    PurchaseRequest getPRById(Long id);
 }

@@ -35,6 +35,15 @@ public class PurchaseRequestController {
     }
 
     /**
+     * GET Purchase Request by ID
+     * URL: GET /api/prs/{id}
+     */
+    @GetMapping("/{id}")
+    public PurchaseRequest getPRById(@PathVariable Long id) {
+        return prService.getPRById(id);
+    }
+
+    /**
      * GET all Purchase Requests
      * URL: GET /api/prs
      */
@@ -50,7 +59,7 @@ public class PurchaseRequestController {
     @PutMapping("/{id}")
     public PurchaseRequest updatePR(
             @PathVariable Long id,
-            @Valid @RequestBody PurchaseRequest pr) {
+            @RequestBody PurchaseRequest pr) {
 
         return prService.updatePR(id, pr);
     }

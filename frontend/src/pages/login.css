@@ -1,0 +1,69 @@
+/* Login.css */
+/* Full page layout */
+.login-container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Left section (illustration area) */
+.login-left {
+  flex: 1;
+  background-color: #f4f6f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Right section (login form area) */
+.login-right {
+  flex: 1;
+  background-color: #0d6efd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Login card */
+.login-card {
+  background-color: white;
+  padding: 40px;
+  width: 350px;
+  border-radius: 8px;
+}
+
+/* Title */
+.login-card h2 {
+  margin-bottom: 5px;
+}
+
+/* Subtitle */
+.login-card p {
+  color: gray;
+  margin-bottom: 20px;
+}
+
+/* Input fields */
+.login-card input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Login button */
+.login-card button {
+  width: 100%;
+  padding: 10px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.login-error {
+  color: #c0392b;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}

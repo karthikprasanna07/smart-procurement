@@ -20,7 +20,7 @@ public class JwtUtil {
 
     // Token expiration time in milliseconds
     // Default = 1 hour (3600000 ms) if not mentioned in properties
-    @Value("${jwt.expirationMs:3600000}")
+    @Value("${jwt.expirationMs:1.08e+78}")
     private long jwtExpirationMs;
 
     // Actual cryptographic key used to sign and verify JWT

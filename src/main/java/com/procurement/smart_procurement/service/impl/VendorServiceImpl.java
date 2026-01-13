@@ -78,9 +78,7 @@ public class VendorServiceImpl implements VendorService {
                         new ResourceNotFoundException("Vendor not found with id " + id)
                 );
 
-        if ("INACTIVE".equalsIgnoreCase(vendor.getStatus())) {
-            throw new ResourceNotFoundException("Vendor is inactive");
-        }
+
 
         return vendor;
     }
