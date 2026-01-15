@@ -3,6 +3,7 @@ package com.procurement.smart_procurement.controller;
 import com.procurement.smart_procurement.entity.PurchaseOrder;
 import com.procurement.smart_procurement.service.PurchaseOrderService;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public class PurchaseOrderController {
         this.poService = poService;
     }
 
-    // Sprint 5: Create PO from APPROVED PR
+    @PreAuthorize("hasAuthority('ROLE_FINANCE')")
     @PostMapping("/create")
     public PurchaseOrder createPO(
             @RequestParam Long prId,
@@ -29,7 +30,7 @@ public class PurchaseOrderController {
         return poService.createPO(prId, vendorId, comments, terms);
     }
 
-    // Existing functionality (UNCHANGED)
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN','ROLE_FINANCE')")
     @GetMapping
     public List<PurchaseOrder> getAllPOs() {
         return poService.getAllPOs();

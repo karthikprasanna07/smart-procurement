@@ -88,7 +88,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/pos/**").permitAll()
 
                         // Allow all remaining requests (for now)
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 // JWT filter
