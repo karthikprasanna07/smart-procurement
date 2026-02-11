@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@PermitAll   // 🔑 THIS IS THE FIX
+
 @RestController
 @RequestMapping("/api/v1/pos")
 public class PurchaseOrderController {

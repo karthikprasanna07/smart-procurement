@@ -38,39 +38,38 @@ public class SecurityConfig {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
-    // Password hashing (BCrypt)
+    // 🔐 Password hashing using BCrypt
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Authentication manager for login
+    // 🔐 Authentication manager for login process
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
         return cfg.getAuthenticationManager();
     }
 
-    // 🔐 Main security configuration
+    // 🔐 Main Spring Security configuration
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // ✅ ENABLE CORS
+                // ✅ Enable CORS (for frontend integration)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
 
-
-                // Disable CSRF (JWT is stateless)
+                // ❌ Disable CSRF (JWT is stateless)
                 .csrf(csrf -> csrf.disable())
 
-                // Stateless session (JWT based)
+                // 🔐 Stateless session management
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Authorization rules
+                // 🔐 Authorization rules
                 .authorizeHttpRequests(auth -> auth
 
-                        // Swagger access
+                        // Swagger UI & API docs
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -84,14 +83,18 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/vendors/**")
                         .hasAuthority("ROLE_ADMIN")
 
-                        // Temporary open APIs
+                        // ✅ REPORT APIs - ADMIN & FINANCIER only (SPRINT 6)
+                        .requestMatchers("/api/v1/reports/")
+                        .hasAnyAuthority("ROLE_ADMIN", "ROLE_FINANCIER")
+
+                        // Temporary open APIs (as per your setup)
                         .requestMatchers("/api/v1/pos/**").permitAll()
 
-                        // Allow all remaining requests (for now)
+                        // All remaining APIs require authentication
                         .anyRequest().authenticated()
                 )
 
-                // JWT filter
+                // 🔐 JWT authentication filter
                 .addFilterBefore(
                         jwtAuthenticationFilter,
                         UsernamePasswordAuthenticationFilter.class
@@ -100,7 +103,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🌐 CORS configuration (FOR REACT FRONTEND)
+    // 🌐 CORS configuration (for React frontend)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
 
@@ -117,7 +120,7 @@ public class SecurityConfig {
         // Allow all headers
         config.setAllowedHeaders(List.of("*"));
 
-        // Allow cookies / auth headers if needed later
+        // Allow credentials (Authorization header)
         config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source =
